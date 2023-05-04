@@ -2,48 +2,31 @@ import React, { useEffect, useRef, useState } from "react";
 import { Todo } from "../interfaces/models";
 import { AiFillEdit, AiFillDelete, AiOutlineCheck } from "react-icons/ai";
 import "./styles.css";
+import { TaskifyState } from "../context/Context";
 
 interface Props {
-  listTodo: Todo[];
-  setListTodo: React.Dispatch<React.SetStateAction<Todo[]>>;
   todo: Todo;
 }
 
-const SingleTodo = ({ todo, listTodo, setListTodo }: Props) => {
+const SingleTodo = ({ todo }: Props) => {
   const [isEditActive, setIsEditActive] = useState<boolean>(false);
   const [inputValue, setIsInputValue] = useState<string>(todo.task);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { state, dispatch } = TaskifyState();
+
   const handleDone = (id: number) => {
-    setListTodo(
-      listTodo.map((todo) => {
-        return todo.id === id ? { ...todo, isDone: !todo.isDone } : todo;
-      })
-    );
+    dispatch({ type: "done", payload: id });
   };
 
   const removeTodo = (id: number) => {
-    setListTodo(
-      listTodo.filter((todo) => {
-        return todo.id !== id;
-      })
-    );
+    dispatch({ type: "remove", payload: id });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>, id: number) => {
     e.preventDefault();
-    setListTodo(
-      listTodo.map((todo) => {
-        // variant 1
-        // if (todo.id === id) {
-        //   return { ...todo, task: inputValue };
-        // } else {
-        //   return todo;
-        // }
-        // variant 2
-        return todo.id === id ? { ...todo, task: inputValue } : todo;
-      })
-    );
+    dispatch({ type: "edit", payload: { id, inputValue } });
+
     setIsEditActive(false);
   };
 
